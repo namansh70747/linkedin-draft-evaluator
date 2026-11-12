@@ -1,0 +1,14 @@
+node_modules/
+.DS_Store
+.env
+.env.*
+!.env.example
+/data/
+/docs/
+/outputs/
+/work/
+/attachments/
+/results/
+*.log
+*.tsbuildinfo
+coverage/

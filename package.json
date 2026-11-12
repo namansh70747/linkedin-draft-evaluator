@@ -1,0 +1,21 @@
+{
+  "name": "linkedin-draft-evaluator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Local, explainable draft scoring and outcome evaluation",
+  "engines": {
+    "node": ">=24.6.0 <25"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "score": "tsx eval.ts",
+    "evaluate": "tsx evaluate.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}
