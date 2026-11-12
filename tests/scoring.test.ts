@@ -67,3 +67,9 @@ test('band boundaries, midrank ties and overlap are defined independently of dis
   close(jaccard('alpha beta gamma', 'alpha beta delta'), 0.5);
   assert.equal(jaccard('', ''), 0);
 });
+
+test('a genuine percentile of 50 is not marked as a provisional sentinel', () => {
+  const result = scoreDraft(posts,{author:'Alice',text:'unknownvocabulary'});
+  assert.equal(result.score,50);
+  assert.equal(result.score_is_provisional,false);
+});

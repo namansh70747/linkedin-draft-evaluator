@@ -52,11 +52,18 @@ export function evaluateHistory(posts: Post[], drafts: Map<string, Draft>, outco
     metrics.relative_lift_mean_absolute_error < metrics.baseline_relative_lift_mean_absolute_error!);
   return {
     method_version:METHOD_VERSION,
+    history_summary: {
+      post_count: posts.length,
+      author_count: new Set(posts.map(post => authorKey(post.author))).size,
+    },
     definitions: {
+      logarithms:'All logarithms are natural logarithms; log1p(x) = ln(1 + x).',
       engagement:'likes + comments + shares',
-      count_error:'Mean absolute difference between log1p(actual engagement) and log1p(estimated engagement); lower is better.',
-      relative_error:'Mean absolute log-lift error for eligible author histories only; lower is better.',
+      count_error:'mean(abs(log1p(estimated engagement) - log1p(actual engagement))); lower is better.',
+      actual_log_lift:'log1p(actual engagement) - median(log1p(author historical engagement)) using the history retained in that pass; available only for author history >= 3.',
+      relative_error:'mean(abs(predicted log lift - actual log lift)) over eligible rows only; lower is better.',
       baseline:'Zero predicted lift using the same author/sparse/pooled baseline as the corresponding prediction.',
+      baseline_count_error:'mean(abs(b - log1p(actual engagement))), where b is the same-pass baseline log engagement and the zero-lift baseline count is expm1(b).',
       sensitivity:'Per draft, exclude history with token-set Jaccard >= 0.70 and rebuild all statistics and vectors.',
       correlation:'Descriptive Spearman rank correlation with average ranks for ties; no significance claim.',
     },

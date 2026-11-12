@@ -53,6 +53,8 @@ Counts must be nonnegative safe integers, and their sum must also be safe. Histo
 
 ## Method: lexical-author-lift-v1
 
+All logarithms below are natural logarithms (`ln`); `log1p(x)` means `ln(1 + x)`. This includes TF, IDF and the band thresholds.
+
 - Engagement is likes + comments + shares; calculations use `log(1 + engagement)`.
 - An author's typical result is the median historical log engagement.
 - Only authors with at least three posts supply reference targets. Each target is a post's log engagement minus its author's median **other-post** log engagement.
@@ -70,13 +72,22 @@ The constants are fixed defaults, not business-validated weights or settings sel
 
 ## Evaluation and trust
 
-The scorer never receives outcomes. The evaluator prepares predictions from drafts/history before comparing outcome counts. It reports:
+The scorer never receives outcomes. The evaluator prepares predictions from drafts/history before comparing outcome counts. It reports loaded history post and distinct normalized-author counts in `history_summary`, followed by:
 
 1. Every supplied outcome, including sparse/pooled fallback rows.
 2. Count mean absolute log error and the same-baseline zero-lift predictor.
 3. Relative-lift error and descriptive Spearman correlation for eligible authors only, with coverage shown explicitly.
 4. An overlap sensitivity pass: remove historical posts with per-draft token-set Jaccard >=0.70, then rebuild baselines and indexes. Baseline comparisons use the same reduced history.
 5. A one-sentence trust judgement. An improvement in both passes is still preliminary evidence, not permission to automate publishing.
+
+For each pass, let `b` be the median `log1p` engagement of the author's retained history, or the labelled sparse/pooled fallback. The exact measures are:
+
+- Count error: `mean(abs(log1p(predicted total) - log1p(actual total)))`, including predicted totals clamped to zero.
+- Actual relative lift: `log1p(actual total) - b`, only if the pass retains at least three posts for that author.
+- Relative error: `mean(abs(predicted lift - actual relative lift))` over eligible rows.
+- Zero-lift baseline count: `expm1(b)`; baseline count error: `mean(abs(b - log1p(actual total)))`.
+
+The sensitivity pass rebuilds `b` from its reduced history. Normal and sensitivity passes each use their own baseline for both prediction and evaluation. A score of 50 has `score_is_provisional: true` only when no eligible references exist; a calculated percentile of 50 has `false`.
 
 Rank ties use average ranks. Correlation is unavailable for fewer than two eligible rows or a constant vector. An invalid/missing outcome draft fails the whole report. If overlap removal leaves no history, evaluation fails rather than fabricating a result.
 
